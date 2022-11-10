@@ -6,11 +6,12 @@ require('dotenv').config();
 
 const port = process.env.PORT || 5000;
 
+//middle ware 
 app.use(cors());
 app.use(express.json());
 
  
-
+//testing server
 app.get('/', (req, res) =>{
     res.send('photography server running')
 });
@@ -25,6 +26,7 @@ async function run () {
         const photoCollection = client.db('wildPhotos').collection('services');
         const reviewCollection = client.db('wildPhotos').collection('reviews');
 
+        //API for getting services
         app.get('/services', async(req,res) =>{
             const query = {}
            const cursor = photoCollection.find(query);
@@ -32,6 +34,7 @@ async function run () {
            res.send(services);
         });
 
+        //API for get services by id
         app.get('/services/:id', async(req,res) =>{
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
@@ -39,7 +42,14 @@ async function run () {
             res.send(service);
         });
 
-        //review api
+        //API for insert a service
+        app.post('/services', async(req,res) =>{
+            const service = req.body;
+            const result = await photoCollection.insertOne(service);
+            res.send(result)
+        })
+
+        //review api by id
           app.patch('/reviews/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id)
@@ -47,7 +57,7 @@ async function run () {
             const query = { _id: ObjectId(id) }
             const updatedDoc = {
                 $set:{
-                    status: status
+                    message: req.body.message
                 }
             }
             const result = await reviewCollection.updateOne(query, updatedDoc);
@@ -55,6 +65,7 @@ async function run () {
             res.send(result);
         })
 
+        //api for query by email
          app.get('/reviews', async (req, res) => {
             let query = {};
 
@@ -69,13 +80,14 @@ async function run () {
             res.send(review);
         });
 
-
+        //API for requesting to body
         app.post('/reviews', async(req,res) =>{
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
             res.send(result)
         });
 
+        // API for deleting by id
            app.delete('/reviews/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };

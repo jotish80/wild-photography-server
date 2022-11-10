@@ -40,9 +40,10 @@ async function run () {
         });
 
         //review api
-          app.patch('/review/:id', async (req, res) => {
+          app.patch('/reviews/:id', async (req, res) => {
             const id = req.params.id;
-            const status = req.body.status
+            console.log(id)
+            console.log(req.body)
             const query = { _id: ObjectId(id) }
             const updatedDoc = {
                 $set:{
@@ -50,6 +51,7 @@ async function run () {
                 }
             }
             const result = await reviewCollection.updateOne(query, updatedDoc);
+
             res.send(result);
         })
 

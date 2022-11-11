@@ -10,9 +10,9 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
- 
+
 //testing server
-app.get('/', (req, res) =>{
+app.get('/', (req, res) => {
     res.send('photography server running')
 });
 
@@ -20,43 +20,43 @@ app.get('/', (req, res) =>{
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.72thnns.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
- 
-async function run () {
-    try{
+
+async function run() {
+    try {
         const photoCollection = client.db('wildPhotos').collection('services');
         const reviewCollection = client.db('wildPhotos').collection('reviews');
 
         //API for getting services
-        app.get('/services', async(req,res) =>{
+        app.get('/services', async (req, res) => {
             const query = {}
-           const cursor = photoCollection.find(query);
-           const services = await cursor.toArray();
-           res.send(services);
+            const cursor = photoCollection.find(query);
+            const services = await cursor.toArray();
+            res.send(services);
         });
 
         //API for get services by id
-        app.get('/services/:id', async(req,res) =>{
+        app.get('/services/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const service = await photoCollection.findOne(query);
             res.send(service);
         });
 
         //API for insert a service
-        app.post('/services', async(req,res) =>{
+        app.post('/services', async (req, res) => {
             const service = req.body;
             const result = await photoCollection.insertOne(service);
             res.send(result)
         })
 
         //review api by id
-          app.patch('/reviews/:id', async (req, res) => {
+        app.patch('/reviews/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id)
             console.log(req.body)
             const query = { _id: ObjectId(id) }
             const updatedDoc = {
-                $set:{
+                $set: {
                     message: req.body.message
                 }
             }
@@ -66,7 +66,7 @@ async function run () {
         })
 
         //api for query by email
-         app.get('/reviews', async (req, res) => {
+        app.get('/reviews', async (req, res) => {
             let query = {};
 
             if (req.query.email) {
@@ -81,29 +81,29 @@ async function run () {
         });
 
         //API for requesting to body
-        app.post('/reviews', async(req,res) =>{
+        app.post('/reviews', async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
             res.send(result)
         });
 
         // API for deleting by id
-           app.delete('/reviews/:id', async (req, res) => {
+        app.delete('/reviews/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await reviewCollection.deleteOne(query);
             res.send(result);
         })
     }
-    finally{
+    finally {
 
     }
 }
+// for error 
+run().catch(error => console.log(error))
 
- run().catch(error => console.log(error))
 
 
-
-app.listen(port, () =>{
+app.listen(port, () => {
     console.log(`photography server running on port ${port}`);
-})
+});
